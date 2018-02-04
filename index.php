@@ -1,7 +1,45 @@
 <?php
 // показывать или нет выполненные задачи
 $show_complete_tasks = rand(0, 1);
-$categories = ["Все", "Входящие", "Учеба»", "Работа", "Домашние дела", "Авто"];
+$categories = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
+$tasks = [
+    [
+     "task" => "Собеседование в IT компании",
+     "dateTime" => "01.06.2018",
+     "category" => "Работа",
+     "completed" => false,
+    ],
+    [
+     "task" => "Выполнить тестовое задание",
+     "dateTime" => "25.05.2018",
+     "category" => "Работа",
+     "completed" => false,
+    ],
+    [
+     "task" => "Сделать задание первого раздела",
+     "dateTime" => "21.04.2018",
+     "category" => "Учеба",
+     "completed" => true,
+    ],
+    [
+     "task" => "Встреча с другом",
+     "dateTime" => "22.04.2018",
+     "category" => "Входящие",
+     "completed" => false,
+    ],
+    [
+     "task" => "Купить корм для кота",
+     "dateTime" => "нет",
+     "category" => "Домашние дела",
+     "completed" => false,
+    ],
+    [
+     "task" => "Заказать пиццу",
+     "dateTime" => "нет",
+     "category" => "Домашние дела",
+     "completed" => false,
+    ],
+];
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -46,10 +84,12 @@ $categories = ["Все", "Входящие", "Учеба»", "Работа", "Д
 
                 <nav class="main-navigation">
                     <ul class="main-navigation__list">
+                        <?php foreach ($categories as $value): ?>
                         <li class="main-navigation__list-item">
-                            <a class="main-navigation__list-item-link" href="#">Входящие</a>
+                            <a class="main-navigation__list-item-link" href="#"><?=$value ?></a>
                             <span class="main-navigation__list-item-count">24</span>
                         </li>
+                        <?php endforeach; ?>
 
                         <li class="main-navigation__list-item main-navigation__list-item--active">
                             <a class="main-navigation__list-item-link" href="#">Работа</a>
