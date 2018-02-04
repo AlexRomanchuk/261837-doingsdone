@@ -1,6 +1,9 @@
 <?php
 // показывать или нет выполненные задачи
+
+// Нужно ли удалить эту переменную? 
 $show_complete_tasks = rand(0, 1);
+
 $categories = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
 $tasks = [
     [
@@ -148,6 +151,7 @@ $tasks = [
                         <td class="task__date"><?=$task["date"]; ?></td>
                     </tr>
                     <?php endforeach; ?>
+                    <!-- Нужно ли удалить этот скрипт? -->
 					<?php if ($show_complete_tasks === 1): ?>
 					    <tr class="tasks__item task task--completed">
                            <td class="task__select">
