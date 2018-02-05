@@ -42,6 +42,12 @@ $tasks = [
      "category" => "Домашние дела",
      "completed" => false,
     ],
+    [
+     "task" => "Помыть машину",
+     "date" => "22.02.2018",
+     "category" => "Авто",
+     "completed" => true,
+    ],
 ];
 
 function countTasks ($listTasks, $nameTask) {
