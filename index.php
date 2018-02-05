@@ -42,7 +42,26 @@ $tasks = [
      "category" => "Домашние дела",
      "completed" => false,
     ],
+    [
+     "task" => "Помыть машину",
+     "date" => "22.02.2018",
+     "category" => "Авто",
+     "completed" => true,
+    ],
 ];
+
+function countTasks ($listTasks, $nameTask) {
+    $i = 0;
+    foreach ($listTasks as $task) {
+        if ($task["category"] === $nameTask) {
+            $i++;
+        }
+    }
+    if ($nameTask === "Все") {
+        $i = count($listTasks);
+    }
+    return $i;
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -93,7 +112,7 @@ $tasks = [
                                 main-navigation__list-item--active
                             <?php endif; ?>">
                             <a class="main-navigation__list-item-link" href="#"><?=$category; ?></a>
-                            <span class="main-navigation__list-item-count"><?=$index + 1; ?></span>
+                            <span class="main-navigation__list-item-count"><?php print (countTasks ($tasks, $category)); ?></span>
                         </li>
                         <?php endforeach; ?>
                     </ul>
