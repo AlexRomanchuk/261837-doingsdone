@@ -47,22 +47,9 @@ $tasks = [
     ],
 ];
 
-function countTasks ($listTasks, $nameTask) {
-    $i = 0;
-    foreach ($listTasks as $task) {
-        if ($task["category"] === $nameTask) {
-            $i++;
-        }
-    }
-    if ($nameTask === "Все") {
-        $i = count($listTasks);
-    }
-    return $i;
-}
-
 require_once("functions.php");
 
-$content = renderTemplate ("templates/index.php", ["categories" => $categories, "tasks" => $tasks, "show_complete_tasks" => $show_complete_tasks]);
+$content = renderTemplate ("templates/index.php", ["tasks" => $tasks, "show_complete_tasks" => $show_complete_tasks]);
 
 print (renderTemplate ("templates/layout.php", ["categories" => $categories, "tasks" => $tasks, "content" => $content, "title" => $siteName, "userName" => $userName]));
 
