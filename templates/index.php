@@ -1,32 +1,32 @@
-    <h2 class="content__main-heading">Список задач</h2>
+    <h2 class="content__main-heading">РЎРїРёСЃРѕРє Р·Р°РґР°С‡</h2>
 
     <form class="search-form" action="index.html" method="post">
-        <input class="search-form__input" type="text" name="" value="" placeholder="Поиск по задачам">
+        <input class="search-form__input" type="text" name="" value="" placeholder="РџРѕРёСЃРє РїРѕ Р·Р°РґР°С‡Р°Рј">
 
-        <input class="search-form__submit" type="submit" name="" value="Искать">
+        <input class="search-form__submit" type="submit" name="" value="РСЃРєР°С‚СЊ">
     </form>
 
     <div class="tasks-controls">
         <nav class="tasks-switch">
-            <a href="/" class="tasks-switch__item tasks-switch__item--active">Все задачи</a>
-            <a href="/" class="tasks-switch__item">Повестка дня</a>
-            <a href="/" class="tasks-switch__item">Завтра</a>
-            <a href="/" class="tasks-switch__item">Просроченные</a>
+            <a href="/" class="tasks-switch__item tasks-switch__item--active">Р’СЃРµ Р·Р°РґР°С‡Рё</a>
+            <a href="/" class="tasks-switch__item">РџРѕРІРµСЃС‚РєР° РґРЅСЏ</a>
+            <a href="/" class="tasks-switch__item">Р—Р°РІС‚СЂР°</a>
+            <a href="/" class="tasks-switch__item">РџСЂРѕСЃСЂРѕС‡РµРЅРЅС‹Рµ</a>
         </nav>
 
         <label class="checkbox">
             <a href="/">
-                    <!--добавить сюда аттрибут "checked", если переменная $show_complete_tasks равна единице-->
+                    <!--РґРѕР±Р°РІРёС‚СЊ СЃСЋРґР° Р°С‚С‚СЂРёР±СѓС‚ "checked", РµСЃР»Рё РїРµСЂРµРјРµРЅРЅР°СЏ $show_complete_tasks СЂР°РІРЅР° РµРґРёРЅРёС†Рµ-->
                     <input class="checkbox__input visually-hidden" type="checkbox" <?php if ($show_complete_tasks === 1): ?> 
 					    checked="checked"
 				    <?php endif; ?>>
-                <span class="checkbox__text">Показывать выполненные</span>
+                <span class="checkbox__text">РџРѕРєР°Р·С‹РІР°С‚СЊ РІС‹РїРѕР»РЅРµРЅРЅС‹Рµ</span>
             </a>
         </label>
     </div>
 
     <table class="tasks">
-    <!--показывать следующий тег <tr/>, если переменная $show_complete_tasks равна единице-->
+    <!--РїРѕРєР°Р·С‹РІР°С‚СЊ СЃР»РµРґСѓСЋС‰РёР№ С‚РµРі <tr/>, РµСЃР»Рё РїРµСЂРµРјРµРЅРЅР°СЏ $show_complete_tasks СЂР°РІРЅР° РµРґРёРЅРёС†Рµ-->
         <?php foreach ($tasks as $task): ?>
             <tr class="tasks__item task 
                 <?php if ($task["completed"] === true): ?>
@@ -35,7 +35,7 @@
                 <td class="task__select">
                     <label class="checkbox task__checkbox">
                         <input class="checkbox__input visually-hidden" type="checkbox" checked>
-                        <a href="/"><span class="checkbox__text"><?=$task["task"]; ?></span></a>
+                        <a href="/"><span class="checkbox__text"><?=strip_tags($task["task"]); ?></span></a>
                     </label>
                 </td>
 
@@ -46,13 +46,13 @@
                 <td class="task__date"><?=$task["date"]; ?></td>
             </tr>
         <?php endforeach; ?>
-        <!-- Нужно ли удалить этот скрипт? -->
+        <!-- РќСѓР¶РЅРѕ Р»Рё СѓРґР°Р»РёС‚СЊ СЌС‚РѕС‚ СЃРєСЂРёРїС‚? -->
 		<?php if ($show_complete_tasks === 1): ?>
 		    <tr class="tasks__item task task--completed">
                 <td class="task__select">
                     <label class="checkbox task__checkbox">
                         <input class="checkbox__input visually-hidden" type="checkbox" checked>
-                        <span class="checkbox__text">Записаться на интенсив "Базовый PHP"</span>
+                        <span class="checkbox__text">Р—Р°РїРёСЃР°С‚СЊСЃСЏ РЅР° РёРЅС‚РµРЅСЃРёРІ "Р‘Р°Р·РѕРІС‹Р№ PHP"</span>
                     </label>
                 </td>
                 <td class="task__date">10.04.2017</td>
