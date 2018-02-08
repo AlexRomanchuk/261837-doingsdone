@@ -4,8 +4,11 @@
 // Нужно ли удалить эту переменную? 
 $show_complete_tasks = rand(0, 1);
 
+define("SECONS_IN_DAY", 86400);
+
 $siteName = "Дела в порядке";
 $userName = "Константин";
+$currentDate = date("d.n.Y");
 
 $categories = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
 $tasks = [
@@ -29,7 +32,7 @@ $tasks = [
     ],
     [
      "task" => "Встреча с другом",
-     "date" => "22.04.2018",
+     "date" => "08.02.2018",
      "category" => "Входящие",
      "completed" => false,
     ],
@@ -49,7 +52,7 @@ $tasks = [
 
 require_once("functions.php");
 
-$content = renderTemplate ("templates/index.php", ["tasks" => $tasks, "show_complete_tasks" => $show_complete_tasks]);
+$content = renderTemplate ("templates/index.php", ["date" => $currentDate, "tasks" => $tasks, "show_complete_tasks" => $show_complete_tasks]);
 
 print (renderTemplate ("templates/layout.php", ["categories" => $categories, "tasks" => $tasks, "content" => $content, "title" => $siteName, "userName" => $userName]));
 

@@ -22,3 +22,7 @@ function renderTemplate ($template, $data) {
         return "";
     }
 }
+
+function countDays ($currentDate, $nextDate) {
+    return floor((strtotime($nextDate) - strtotime($currentDate)) / SECONS_IN_DAY);
+}
