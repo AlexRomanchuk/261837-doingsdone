@@ -31,6 +31,9 @@
             <tr class="tasks__item task 
                 <?php if ($task["completed"] === true): ?>
                     task--completed
+                <?php endif; ?>
+                <?php if ((strtotime($task["date"]) - strtotime($date)) <= $oneDay && $task["date"] !== ""): ?>
+                    task--important
                 <?php endif; ?>">
                 <td class="task__select">
                     <label class="checkbox task__checkbox">
