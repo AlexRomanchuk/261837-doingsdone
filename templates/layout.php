@@ -46,7 +46,12 @@
                             <?php if ($index === 0): ?>
                                 main-navigation__list-item--active
                             <?php endif; ?>">
-                            <a class="main-navigation__list-item-link" href="#"><?=strip_tags($category); ?></a>
+                            <a class="main-navigation__list-item-link" href="
+                            <?php if ($index !== 0): ?>
+                                index.php?category_id=<?=$index ?>
+                            <?php else: ?>
+                                /
+                            <?php endif; ?>"><?=strip_tags($category); ?></a>
                             <span class="main-navigation__list-item-count"><?php print (countTasks ($tasks, $category)); ?></span>
                         </li>
                         <?php endforeach; ?>

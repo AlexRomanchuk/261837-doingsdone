@@ -9,6 +9,7 @@ define("SECONS_IN_DAY", 86400);
 $siteName = "Дела в порядке";
 $userName = "Константин";
 $currentDate = date("d.n.Y");
+$filteredTask = null;
 
 $categories = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
 $tasks = [
@@ -52,7 +53,24 @@ $tasks = [
 
 require_once("functions.php");
 
-$content = renderTemplate ("templates/index.php", ["date" => $currentDate, "tasks" => $tasks, "show_complete_tasks" => $show_complete_tasks]);
+if (isset($_GET["category_id"])) {
+    $categoryId = $_GET["category_id"];
+    $tasksInCategory = [];
+    if (array_key_exists($categoryId, $categories)) {
+        foreach ($tasks as $task) {
+            if ($task["category"] === $categories[$categoryId]) {
+                $filteredTask = $task;
+                array_push($tasksInCategory, $filteredTask);
+            }
+        }
+        $content = renderTemplate ("templates/index.php", ["date" => $currentDate, "tasks" => $tasksInCategory, "show_complete_tasks" => $show_complete_tasks]);
+    } else {
+        http_response_code(404);
+        $content = "Категория не найдена";
+    }
+} else {
+    $content = renderTemplate ("templates/index.php", ["date" => $currentDate, "tasks" => $tasks, "show_complete_tasks" => $show_complete_tasks]);
+}
 
 print (renderTemplate ("templates/layout.php", ["categories" => $categories, "tasks" => $tasks, "content" => $content, "title" => $siteName, "userName" => $userName]));
 
