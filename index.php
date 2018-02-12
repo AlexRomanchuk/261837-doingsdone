@@ -53,6 +53,11 @@ $tasks = [
 
 require_once("functions.php");
 
+if (isset($_GET["add"])) {
+    $addForm = renderTemplate ("templates/addtask.php", []);
+    print (renderTemplate ("templates/layout.php", ["categories" => $categories, "tasks" => $tasks, "content" => $addForm, "title" => $siteName, "userName" => $userName]));
+}
+
 if (isset($_GET["category_id"])) {
     $categoryId = $_GET["category_id"];
     $tasksInCategory = [];
