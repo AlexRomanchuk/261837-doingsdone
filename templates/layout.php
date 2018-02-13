@@ -8,10 +8,8 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body 
-    <?php if (isset($_GET["add"])): ?> 
-        class="overlay"
-    <?php endif; ?>>
+<body class="<?=$className; ?>">
+    
 <h1 class="visually-hidden">Дела в порядке</h1>
 
 <div class="page-wrapper">
@@ -51,11 +49,11 @@
                             <?php endif; ?>">
                             <a class="main-navigation__list-item-link" href="
                             <?php if ($index !== 0): ?>
-                                index.php?category_id=<?=$index ?>
+                                index.php?project_id=<?=$index ?>
                             <?php else: ?>
                                 /
                             <?php endif; ?>"><?=strip_tags($category); ?></a>
-                            <span class="main-navigation__list-item-count"><?php print (countTasks ($tasks, $category)); ?></span>
+                            <span class="main-navigation__list-item-count"><?=countTasks ($tasks, $category); ?></span>
                         </li>
                         <?php endforeach; ?>
                     </ul>
@@ -79,7 +77,7 @@
             <p>Веб-приложение для удобного ведения списка дел.</p>
         </div>
 
-        <a class="main-footer__button button button--plus">Добавить задачу</a>
+        <a class="main-footer__button button button--plus" href="index.php?add">Добавить задачу</a>
 
         <div class="main-footer__social social">
             <span class="visually-hidden">Мы в соцсетях:</span>
