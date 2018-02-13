@@ -2,7 +2,7 @@
 function countTasks ($listTasks, $nameTask) {
     $i = 0;
     foreach ($listTasks as $task) {
-        if ($task["category"] === $nameTask) {
+        if ($task["project"] === $nameTask) {
             $i++;
         }
     }

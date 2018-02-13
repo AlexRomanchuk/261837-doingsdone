@@ -1,7 +1,6 @@
 <?php
-// показывать или нет выполненные задачи
-
-// Нужно ли удалить эту переменную? 
+// показывать или нет выполненные задачи 
+require_once("functions.php");
 $show_complete_tasks = rand(0, 1);
 
 define("SECONS_IN_DAY", 86400);
@@ -10,55 +9,60 @@ $siteName = "Дела в порядке";
 $userName = "Константин";
 $currentDate = date("d.n.Y");
 $filteredTask = null;
+$className = "";
+$errors = [];
 
 $categories = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
 $tasks = [
     [
-     "task" => "Собеседование в IT компании",
+     "name" => "Собеседование в IT компании",
      "date" => "01.06.2018",
-     "category" => "Работа",
+     "project" => "Работа",
      "completed" => false,
     ],
     [
-     "task" => "Выполнить тестовое задание",
+     "name" => "Выполнить тестовое задание",
      "date" => "25.05.2018",
-     "category" => "Работа",
+     "project" => "Работа",
      "completed" => false,
     ],
     [
-     "task" => "Сделать задание первого раздела",
+     "name" => "Сделать задание первого раздела",
      "date" => "21.04.2018",
-     "category" => "Учеба",
+     "project" => "Учеба",
      "completed" => true,
     ],
     [
-     "task" => "Встреча с другом",
+     "name" => "Встреча с другом",
      "date" => "08.02.2018",
-     "category" => "Входящие",
+     "project" => "Входящие",
      "completed" => false,
     ],
     [
-     "task" => "Купить корм для кота",
+     "name" => "Купить корм для кота",
      "date" => "",
-     "category" => "Домашние дела",
+     "project" => "Домашние дела",
      "completed" => false,
     ],
     [
-     "task" => "Заказать пиццу",
+     "name" => "Заказать пиццу",
      "date" => "",
-     "category" => "Домашние дела",
+     "project" => "Домашние дела",
      "completed" => false,
     ],
 ];
 
-require_once("functions.php");
 
-if (isset($_GET["category_id"])) {
-    $categoryId = $_GET["category_id"];
+
+if (isset($_GET["add"])) {
+    $content = renderTemplate ("templates/addtask.php", ["categories" => $categories]);
+    $className = "overlay";
+} elseif (isset($_GET["project_id"])) {
+    $categoryId = $_GET["project_id"];
     $tasksInCategory = [];
     if (array_key_exists($categoryId, $categories)) {
         foreach ($tasks as $task) {
-            if ($task["category"] === $categories[$categoryId]) {
+            if ($task["project"] === $categories[$categoryId]) {
                 $filteredTask = $task;
                 array_push($tasksInCategory, $filteredTask);
             }
@@ -68,10 +72,35 @@ if (isset($_GET["category_id"])) {
         http_response_code(404);
         $content = "Категория не найдена";
     }
+} elseif ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $task = $_POST;
+    if (empty($task["name"])) {
+        $errors += ["name" => "Заполните это поле"];
+    }
+    if (empty($task["project"])) {
+        $errors += ["project" => "Укажите категорию"];
+    }
+    if (empty($task["date"])) {
+        $errors += ["date" => "Дату надо указать"];
+    }
+    
+    if (isset($_FILES["preview"]["name"])) {
+        $tmpName = $_FILES["preview"]["tmp_name"];
+        $path = $_FILES["preview"]["name"];
+        move_uploaded_file($tmpName, "" . $path);
+        $task["preview"] = $path;
+    }
+    
+    if (count($errors)) {
+        $content = renderTemplate ("templates/addtask.php", ["errors" => $errors, "categories" => $categories]);
+        $className = "overlay";
+	} else {
+        array_unshift($tasks, $task);
+        $content = renderTemplate ("templates/index.php", ["date" => $currentDate, "tasks" => $tasks, "show_complete_tasks" => $show_complete_tasks]);
+    }
 } else {
     $content = renderTemplate ("templates/index.php", ["date" => $currentDate, "tasks" => $tasks, "show_complete_tasks" => $show_complete_tasks]);
 }
 
-print (renderTemplate ("templates/layout.php", ["categories" => $categories, "tasks" => $tasks, "content" => $content, "title" => $siteName, "userName" => $userName]));
-
+print (renderTemplate ("templates/layout.php", ["className" => $className, "categories" => $categories, "tasks" => $tasks, "content" => $content, "title" => $siteName, "userName" => $userName]));
 ?>

@@ -38,17 +38,20 @@
                 <td class="task__select">
                     <label class="checkbox task__checkbox">
                         <input class="checkbox__input visually-hidden" type="checkbox" checked>
-                        <a href="/"><span class="checkbox__text"><?=strip_tags($task["task"]); ?></span></a>
+                        <a href="/"><span class="checkbox__text"><?=strip_tags($task["name"]); ?></span></a>
                     </label>
                 </td>
-
+                
                 <td class="task__file">
-                    <a class="download-link" href="#">Home.psd</a>
+                <?php if (isset($task["preview"]) && $task["preview"] !== ""): ?>
+                    <a class="download-link" href="<?=$task["preview"]; ?>"><?=$task["preview"]; ?></a>
+                <?php endif; ?>
                 </td>
-
+                
                 <td class="task__date"><?=$task["date"]; ?></td>
             </tr>
         <?php endforeach; ?>
+        
         <!-- Нужно ли удалить этот скрипт? -->
 		<?php if ($show_complete_tasks === 1): ?>
 		    <tr class="tasks__item task task--completed">
