@@ -32,7 +32,7 @@ $preview = $_POST["preview"] ?? "";
                 selected
             <?php endif; ?>>
             <?=$category; ?></option>
-          <?php endif ?>
+          <?php endif; ?>
         <?php endforeach; ?>
       </select>
     </div>
@@ -50,6 +50,9 @@ $preview = $_POST["preview"] ?? "";
       <label class="form__label" for="preview">Файл</label>
 
       <div class="form__input-file">
+        <?php if (isset($errors["preview"])): ?>
+            <p class="form__message"><?=$errors["preview"]; ?></p>
+        <?php endif; ?>
         <input class="visually-hidden" type="file" name="preview" id="preview" value="<?=$preview; ?>">
 
         <label class="button button--transparent" for="preview">
