@@ -1,7 +1,7 @@
 <?php
-// показывать или нет выполненные задачи 
+// показывать или нет выполненные задачи
+
 require_once("functions.php");
-$show_complete_tasks = rand(0, 1);
 
 define("SECONS_IN_DAY", 86400);
 
@@ -52,7 +52,17 @@ $tasks = [
     ],
 ];
 
+$showCompleted = 1;
 
+if (isset($_GET["show_completed"])) {
+    if (isset($_COOKIE["showcompl"])) {
+        $showCompleted = ($_COOKIE["showcompl"]) == 1 ? 0 : 1;
+    }
+    setcookie("showcompl", $showCompleted);
+    header("Location: /");
+}
+
+$completed = (isset($_COOKIE["showcompl"])) ? $_COOKIE["showcompl"] : "";
 
 if (isset($_GET["add"])) {
     $content = renderTemplate ("templates/addtask.php", ["categories" => $categories]);
@@ -67,7 +77,7 @@ if (isset($_GET["add"])) {
                 array_push($tasksInCategory, $filteredTask);
             }
         }
-        $content = renderTemplate ("templates/index.php", ["date" => $currentDate, "tasks" => $tasksInCategory, "show_complete_tasks" => $show_complete_tasks]);
+        $content = renderTemplate ("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasksInCategory]);
     } else {
         http_response_code(404);
         $content = "Категория не найдена";
@@ -83,23 +93,26 @@ if (isset($_GET["add"])) {
     if (empty($task["date"])) {
         $errors += ["date" => "Дату надо указать"];
     }
-    
     if (isset($_FILES["preview"]["name"])) {
         $tmpName = $_FILES["preview"]["tmp_name"];
         $path = $_FILES["preview"]["name"];
-        move_uploaded_file($tmpName, "" . $path);
-        $task["preview"] = $path;
+        $fileType = $_FILES["preview"]["type"];
+        if ($fileType !== "image/png " && $fileType !== "image/jpeg" && $fileType !== "image/gif" && $fileType !== "") {
+            $errors += ["preview" => "Недопустимый формат файла"];
+        }
     }
     
     if (count($errors)) {
         $content = renderTemplate ("templates/addtask.php", ["errors" => $errors, "categories" => $categories]);
         $className = "overlay";
 	} else {
+        move_uploaded_file($tmpName, "" . $path);
+        $task["preview"] = $path;
         array_unshift($tasks, $task);
-        $content = renderTemplate ("templates/index.php", ["date" => $currentDate, "tasks" => $tasks, "show_complete_tasks" => $show_complete_tasks]);
+        $content = renderTemplate ("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
     }
 } else {
-    $content = renderTemplate ("templates/index.php", ["date" => $currentDate, "tasks" => $tasks, "show_complete_tasks" => $show_complete_tasks]);
+    $content = renderTemplate ("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
 }
 
 print (renderTemplate ("templates/layout.php", ["className" => $className, "categories" => $categories, "tasks" => $tasks, "content" => $content, "title" => $siteName, "userName" => $userName]));
