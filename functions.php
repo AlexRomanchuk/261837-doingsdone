@@ -26,3 +26,14 @@ function renderTemplate ($template, $data) {
 function countDays ($currentDate, $nextDate) {
     return floor((strtotime($nextDate) - strtotime($currentDate)) / SECONS_IN_DAY);
 }
+
+function searchByEmail($email, $users) {
+    $result = "";
+    foreach ($users as $user) {
+        if ($user["email"] == $email) {
+            $result = $user;
+            break;
+        }
+    }
+    return $result;
+}

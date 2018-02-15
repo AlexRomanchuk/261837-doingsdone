@@ -29,13 +29,13 @@
                         </div>
 
                         <div class="user-menu__data">
-                            <p><?=strip_tags($userName); ?></p>
+                            <p><?=strip_tags($_SESSION["user"]["name"]); ?></p>
 
-                            <a href="#">Выйти</a>
+                            <a href="logout.php">Выйти</a>
                         </div>
                     </div>
                 <?php else: ?>
-                    <a class="main-header__side-item button button--transparent" href="#">Войти</a>
+                    <a class="main-header__side-item button button--transparent" href="?login">Войти</a>
                 <?php endif; ?>
             </div>
         </header>
