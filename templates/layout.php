@@ -20,19 +20,23 @@
             </a>
 
             <div class="main-header__side">
-                <a class="main-header__side-item button button--plus" href="index.php?add">Добавить задачу</a>
+                <?php if (isset($_SESSION["user"])): ?>
+                    <a class="main-header__side-item button button--plus" href="index.php?add">Добавить задачу</a>
 
-                <div class="main-header__side-item user-menu">
-                    <div class="user-menu__image">
-                        <img src="img/user-pic.jpg" width="40" height="40" alt="Пользователь">
+                    <div class="main-header__side-item user-menu">
+                        <div class="user-menu__image">
+                            <img src="img/user-pic.jpg" width="40" height="40" alt="Пользователь">
+                        </div>
+
+                        <div class="user-menu__data">
+                            <p><?=strip_tags($userName); ?></p>
+
+                            <a href="#">Выйти</a>
+                        </div>
                     </div>
-
-                    <div class="user-menu__data">
-                        <p><?=strip_tags($userName); ?></p>
-
-                        <a href="#">Выйти</a>
-                    </div>
-                </div>
+                <?php else: ?>
+                    <a class="main-header__side-item button button--transparent" href="#">Войти</a>
+                <?php endif; ?>
             </div>
         </header>
 
