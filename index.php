@@ -72,27 +72,25 @@ $completed = (isset($_COOKIE["showcompl"])) ? $_COOKIE["showcompl"] : "";
 session_start();
 
 if (isset($_SESSION["user"])) {
-    $content = renderTemplate ("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
-} elseif (isset($_GET["add"])) {
-    $content = renderTemplate ("templates/addtask.php", ["categories" => $categories]);
-    $className = "overlay";
-} elseif (isset($_GET["project_id"])) {
-    $categoryId = $_GET["project_id"];
-    $tasksInCategory = [];
-    if (array_key_exists($categoryId, $categories)) {
-        foreach ($tasks as $task) {
+    if (isset($_GET["add"])) {
+        $content = renderTemplate ("templates/addtask.php", ["categories" => $categories]);
+        $className = "overlay";
+    } elseif (isset($_GET["project_id"])) {
+        $categoryId = $_GET["project_id"];
+        $tasksInCategory = [];
+        if (array_key_exists($categoryId, $categories)) {
+            foreach ($tasks as $task) {
             if ($task["project"] === $categories[$categoryId]) {
                 $filteredTask = $task;
                 array_push($tasksInCategory, $filteredTask);
             }
         }
-        $content = renderTemplate ("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasksInCategory]);
-    } else {
-        http_response_code(404);
-        $content = "Категория не найдена";
-    }
-} elseif ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (isset($_POST["add"])) {
+        $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasksInCategory]);
+        } else {
+            http_response_code(404);
+            $content = "Категория не найдена";
+        }
+    } elseif (isset($_POST["add"])) {
         $task = $_POST;
         if (empty($task["name"])) {
             $errors += ["name" => "Заполните это поле"];
@@ -119,41 +117,41 @@ if (isset($_SESSION["user"])) {
             move_uploaded_file($tmpName, "" . $path);
             $task["preview"] = $path;
             array_unshift($tasks, $task);
-            $content = renderTemplate ("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
+            $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
         }
-    } elseif (isset($_POST["login"])) {
-        $guest = $_POST;
-        if (empty($guest["email"])) {
-            $loginErrors["email"] += ["missing_email" => "Заполните это поле"];
-        }
-        if (empty($guest["password"])) {
-            $loginErrors["password"] += ["missing_password" => "Укажите пароль"];
-        }
-        if (!filter_var($guest["email"], FILTER_VALIDATE_EMAIL)) {
-            $loginErrors["email"] += ["incorrect_email" => "Введен некорректный e-mail"];
-        }
-        if ($user = searchByEmail($guest["email"], $users)) {
-            if (password_verify($guest["password"], $user["password"])) {
-                $_SESSION["user"] = $user;
-            } else {
-                $loginErrors["password"] += ["invalid_password" => "Неверный пароль"];
-            }
-        } else {
-            $loginErrors["email"] += ["unknown_user" => "Такого пользователя не существует"];
-        }
-        
-        if (count($loginErrors["email"]) || count($loginErrors["password"])) {
-            $content = renderTemplate ("templates/auth_form.php", ["loginErrors" => $loginErrors]);
-            $className = "overlay";
-	    } else {
-            header("Location: /");
-        }
+    } else {
+        $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
     }
-} elseif (isset($_SESSION["username"])) {
-    $content = renderTemplate ("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
 } elseif (isset($_GET["login"])) {
     $content = renderTemplate ("templates/auth_form.php", []);
     $className = "overlay";
+} elseif (isset($_POST["login"])) {
+    $guest = $_POST;
+    if (empty($guest["email"])) {
+        $loginErrors["email"] += ["missing_email" => "Заполните это поле"];
+    }
+    if (empty($guest["password"])) {
+        $loginErrors["password"] += ["missing_password" => "Введите пароль"];
+    }
+    if (!filter_var($guest["email"], FILTER_VALIDATE_EMAIL)) {
+        $loginErrors["email"] += ["incorrect_email" => "Введен некорректный e-mail"];
+    }
+    if ($user = searchByEmail($guest["email"], $users)) {
+        if (password_verify($guest["password"], $user["password"])) {
+            $_SESSION["user"] = $user;
+        } else {
+            $loginErrors["password"] += ["invalid_password" => "Неверный пароль"];
+        }
+    } else {
+        $loginErrors["email"] += ["unknown_user" => "Такого пользователя не существует"];
+    }
+        
+    if (count($loginErrors["email"]) || count($loginErrors["password"])) {
+        $content = renderTemplate("templates/auth_form.php", ["loginErrors" => $loginErrors]);
+        $className = "overlay";
+	} else {
+        header("Location: /");
+    }
 } else {
     $content = renderTemplate ("templates/guest.php", []);
 }

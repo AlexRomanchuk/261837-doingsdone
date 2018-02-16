@@ -41,6 +41,7 @@
         </header>
 
         <div class="content">
+            <?php if (isset($_SESSION["user"])): ?>
             <section class="content__side">
                 <h2 class="content__side-heading">Проекты</h2>
 
@@ -65,6 +66,7 @@
 
                 <a class="button button--transparent button--plus content__side-button" href="#">Добавить проект</a>
             </section>
+            <?php endif; ?>
 
             <main class="content__main">
                 <?=$content; ?>
