@@ -20,23 +20,28 @@
             </a>
 
             <div class="main-header__side">
-                <a class="main-header__side-item button button--plus" href="index.php?add">Добавить задачу</a>
+                <?php if (isset($_SESSION["user"])): ?>
+                    <a class="main-header__side-item button button--plus" href="index.php?add">Добавить задачу</a>
 
-                <div class="main-header__side-item user-menu">
-                    <div class="user-menu__image">
-                        <img src="img/user-pic.jpg" width="40" height="40" alt="Пользователь">
+                    <div class="main-header__side-item user-menu">
+                        <div class="user-menu__image">
+                            <img src="img/user-pic.jpg" width="40" height="40" alt="Пользователь">
+                        </div>
+
+                        <div class="user-menu__data">
+                            <p><?=strip_tags($_SESSION["user"]["name"]); ?></p>
+
+                            <a href="logout.php">Выйти</a>
+                        </div>
                     </div>
-
-                    <div class="user-menu__data">
-                        <p><?=strip_tags($userName); ?></p>
-
-                        <a href="#">Выйти</a>
-                    </div>
-                </div>
+                <?php else: ?>
+                    <a class="main-header__side-item button button--transparent" href="?login">Войти</a>
+                <?php endif; ?>
             </div>
         </header>
 
         <div class="content">
+            <?php if (isset($_SESSION["user"])): ?>
             <section class="content__side">
                 <h2 class="content__side-heading">Проекты</h2>
 
@@ -61,6 +66,7 @@
 
                 <a class="button button--transparent button--plus content__side-button" href="#">Добавить проект</a>
             </section>
+            <?php endif; ?>
 
             <main class="content__main">
                 <?=$content; ?>
