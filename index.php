@@ -148,17 +148,20 @@ if (isset($_SESSION["user"])) {
     }
     if (!filter_var($guest["email"], FILTER_VALIDATE_EMAIL)) {
         $loginErrors["email"] += ["incorrect_email" => "Введен некорректный e-mail"];
-    }
-    if ($user = searchByEmail($guest["email"], $users)) {
-        if (password_verify($guest["password"], $user["password"])) {
-            $_SESSION["user"] = $user;
-        } else {
-            $loginErrors["password"] += ["invalid_password" => "Неверный пароль"];
-        }
     } else {
-        $loginErrors["email"] += ["unknown_user" => "Такого пользователя не существует"];
+        $query = "SELECT * FROM users WHERE email = '" . $guest["email"]  . "'";
+        $result = mysqli_query($dbc, $query);
+        if (mysqli_num_rows($result) === 0) {
+            $loginErrors["email"] += ["unknown_user" => "Такого пользователя не существует"];
+        } else {
+            $user = mysqli_fetch_array($result);
+            if (password_verify($guest["password"], $user["password"])) {
+                $_SESSION["user"] = $user;
+            } else {
+                $loginErrors["password"] += ["invalid_password" => "Неверный пароль"];
+            }
+        }
     }
-        
     if (count($loginErrors["email"]) || count($loginErrors["password"])) {
         $content = renderTemplate("templates/auth_form.php", ["loginErrors" => $loginErrors]);
         $className = "overlay";
@@ -172,18 +175,11 @@ if (isset($_SESSION["user"])) {
     }
     if (empty($newUser["password"])) {
         $registrErrors["password"] += ["missing_password" => "Введите пароль"];
-    } else {
-        $query = "SELECT * FROM users WHERE `password` = '" . password_hash($newUser["password"], PASSWORD_DEFAULT) . "'";
-        $result = mysqli_query($dbc, $query);
-        if (mysqli_num_rows($result) !== 0) {
-            $registrErrors["email"] += ["already_exists_pass" => "Пользователь с таким паролем уже существует. Введите другой пароль"];
-        }
     }
-    
     if (empty($newUser["name"])) {
         $registrErrors["name"] += ["missing_name" => "Введите имя"];
     }
-    if (!filter_var($newUser["email"], FILTER_VALIDATE_EMAIL)) {
+    if (!empty($newUser["email"]) && !filter_var($newUser["email"], FILTER_VALIDATE_EMAIL)) {
         $registrErrors["email"] += ["incorrect_email" => "Введен некорректный e-mail"];
     } else {
         $query = "SELECT * FROM users WHERE `email` = '" . $newUser["email"] . "'";
@@ -199,11 +195,13 @@ if (isset($_SESSION["user"])) {
         $password = password_hash($newUser["password"], PASSWORD_DEFAULT);
         $email = mysqli_real_escape_string($dbc, $newUser["email"]);
         $name = mysqli_real_escape_string($dbc, $newUser["name"]);
+        $contacts = mysqli_real_escape_string($dbc, $newUser["contacts"]);
         $query = "INSERT INTO users SET 
             `email` = '$email',
             `nick` = '$name',
             `password` = '$password',
-            `date_registr` = NOW()";
+            `date_registr` = NOW(),
+            `contacts` = '$contacts'";
         $result = mysqli_query($dbc, $query);
         if (!$result) {
             print("Произошла ошибка при выполнении запроса: " . mysqli_error($dbc));

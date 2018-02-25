@@ -2,6 +2,7 @@
  $name = $_POST["name"] ?? "";
  $email = $_POST["email"] ?? "";
  $password = $_POST["password"] ?? "";
+ $contacts = $_POST["contacts"] ?? "";
  ?>
  <div class="content">
     <section class="content__side">
@@ -54,6 +55,11 @@
             <?php if (isset($registrErrors["name"]["missing_name"])): ?>
               <p class="form__message"><?=$registrErrors["name"]["missing_name"]; ?></p>
             <?php endif; ?>
+         </div>
+         
+         <div class="form__row">
+            <label class="form__label" for="contacts">Контакты</label>
+            <textarea class="form__input" type="text" name="contacts" id="contacts" placeholder="Дополнительная информация"><?=$contacts; ?></textarea>
          </div>
 
         <div class="form__row form__row--controls">
