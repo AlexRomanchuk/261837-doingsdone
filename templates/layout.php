@@ -29,7 +29,7 @@
                         </div>
 
                         <div class="user-menu__data">
-                            <p><?=strip_tags($_SESSION["user"]["name"]); ?></p>
+                            <p><?=strip_tags($_SESSION["user"]["nick"]); ?></p>
 
                             <a href="logout.php">Выйти</a>
                         </div>
