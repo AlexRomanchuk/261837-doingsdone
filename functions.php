@@ -1,13 +1,10 @@
 <?php
-function countTasks ($listTasks, $nameTask) {
+function countTasks ($listTasks, $idTask) {
     $i = 0;
     foreach ($listTasks as $task) {
-        if ($task["project"] === $nameTask) {
+        if ($task["project"] === "$idTask") {
             $i++;
         }
-    }
-    if ($nameTask === "Все") {
-        $i = count($listTasks);
     }
     return $i;
 }

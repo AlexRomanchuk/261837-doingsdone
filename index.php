@@ -22,7 +22,7 @@ $registrErrors = [
   "email" => [],
 ];
 
-$categories = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
+/* $categories = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
 $tasks = [
     [
      "name" => "Собеседование в IT компании",
@@ -60,7 +60,9 @@ $tasks = [
      "project" => "Домашние дела",
      "completed" => false,
     ],
-];
+]; */
+$categories = [];
+$tasks = [];
 
 $showCompleted = 1;
 
@@ -83,6 +85,25 @@ if (!$dbc) {
 }
 
 if (isset($_SESSION["user"])) {
+    $query = "SELECT id, project_name FROM projects";
+    if (isset($_GET["user_projects"])) {
+        $query = "SELECT id, project_name FROM projects WHERE author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"]  . "')";
+    }
+    $result = mysqli_query($dbc, $query);
+    while ($row = mysqli_fetch_array($result)) {
+        $categories += [$row["id"] => $row["project_name"]];
+    }
+    
+    $queryTasks = "SELECT * FROM tasks WHERE author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"]  . "')";
+    $allTasks = mysqli_query($dbc, $queryTasks);
+    while ($row = mysqli_fetch_array($allTasks)) {
+        $tasks += [$row["id"] => [
+          "name" => $row["name"],
+          "project" => $row["project_id"],
+          "date" => $row["date_done"],
+          "completed" => $row["completed"],
+        ]];
+    }
     if (isset($_GET["add"])) {
         $content = renderTemplate("templates/addtask.php", ["categories" => $categories]);
         $className = "overlay";
@@ -91,12 +112,12 @@ if (isset($_SESSION["user"])) {
         $tasksInCategory = [];
         if (array_key_exists($categoryId, $categories)) {
             foreach ($tasks as $task) {
-            if ($task["project"] === $categories[$categoryId]) {
-                $filteredTask = $task;
-                array_push($tasksInCategory, $filteredTask);
+                if ($task["project"] === $categories[$categoryId]) {
+                    $filteredTask = $task;
+                    array_push($tasksInCategory, $filteredTask);
+                }
             }
-        }
-        $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasksInCategory]);
+            $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasksInCategory]);
         } else {
             http_response_code(404);
             $content = "Категория не найдена";
@@ -125,10 +146,25 @@ if (isset($_SESSION["user"])) {
             $content = renderTemplate("templates/addtask.php", ["errors" => $addErrors, "categories" => $categories]);
             $className = "overlay";
 	    } else {
-            move_uploaded_file($tmpName, "" . $path);
-            $task["preview"] = $path;
-            array_unshift($tasks, $task);
-            $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
+            $imagePath = "" . $path;
+            move_uploaded_file($tmpName, $imagePath);
+            $email = $_SESSION["user"]["email"];
+            $name = mysqli_real_escape_string($dbc, $task["name"]);
+            $project = mysqli_real_escape_string($dbc, $task["project"]);
+            $date = mysqli_real_escape_string($dbc, $task["date"]);
+            $query = "INSERT INTO tasks SET 
+                `name` = '$name',
+                `date_done` = '$date',
+                `project_id` = (SELECT id FROM projects WHERE project_name = '$project'),
+                `author_id` = (SELECT id FROM users WHERE email = '$email'),
+                `date_created` = NOW(),
+                `image` = '$imagePath'";
+            $result = mysqli_query($dbc, $query);
+            if (!$result) {
+                print("Произошла ошибка при выполнении запроса: " . mysqli_error($dbc));
+            } else {
+                header("Location: /");
+            }
         }
     } else {
         $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
