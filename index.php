@@ -1,5 +1,4 @@
 <?php
-// показывать или нет выполненные задачи
 
 require_once("functions.php");
 require_once("userdata.php");
@@ -7,7 +6,6 @@ require_once("userdata.php");
 define("SECONS_IN_DAY", 86400);
 
 $siteName = "Дела в порядке";
-$userName = "Константин";
 $currentDate = date("d.n.Y");
 $filteredTask = null;
 $className = "";
@@ -21,46 +19,7 @@ $registrErrors = [
   "password" => [],
   "email" => [],
 ];
-
-/* $categories = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
-$tasks = [
-    [
-     "name" => "Собеседование в IT компании",
-     "date" => "01.06.2018",
-     "project" => "Работа",
-     "completed" => false,
-    ],
-    [
-     "name" => "Выполнить тестовое задание",
-     "date" => "25.05.2018",
-     "project" => "Работа",
-     "completed" => false,
-    ],
-    [
-     "name" => "Сделать задание первого раздела",
-     "date" => "21.04.2018",
-     "project" => "Учеба",
-     "completed" => true,
-    ],
-    [
-     "name" => "Встреча с другом",
-     "date" => "08.02.2018",
-     "project" => "Входящие",
-     "completed" => false,
-    ],
-    [
-     "name" => "Купить корм для кота",
-     "date" => "",
-     "project" => "Домашние дела",
-     "completed" => false,
-    ],
-    [
-     "name" => "Заказать пиццу",
-     "date" => "",
-     "project" => "Домашние дела",
-     "completed" => false,
-    ],
-]; */
+$projectErrors = [];
 $categories = [];
 $tasks = [];
 
@@ -85,43 +44,38 @@ if (!$dbc) {
 }
 
 if (isset($_SESSION["user"])) {
-    $query = "SELECT id, project_name FROM projects";
-    if (isset($_GET["user_projects"])) {
-        $query = "SELECT id, project_name FROM projects WHERE author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"]  . "')";
-    }
+    $query = "SELECT id, project_name FROM projects WHERE author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"]  . "')";
     $result = mysqli_query($dbc, $query);
     while ($row = mysqli_fetch_array($result)) {
         $categories += [$row["id"] => $row["project_name"]];
     }
     
-    $queryTasks = "SELECT * FROM tasks WHERE author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"]  . "')";
-    $allTasks = mysqli_query($dbc, $queryTasks);
-    while ($row = mysqli_fetch_array($allTasks)) {
-        $tasks += [$row["id"] => [
-          "name" => $row["name"],
-          "project" => $row["project_id"],
-          "date" => $row["date_done"],
-          "completed" => $row["completed"],
-        ]];
-    }
+    $queryTasks = "SELECT id, name, project_id, DATE_FORMAT(date_done, '%d.%m.%Y') AS date_done, completed
+        FROM tasks
+        WHERE author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"]  . "')";
+    $userTasks = mysqli_query($dbc, $queryTasks);
+    $tasks = createArrayTasks($userTasks);
     if (isset($_GET["add"])) {
         $content = renderTemplate("templates/addtask.php", ["categories" => $categories]);
         $className = "overlay";
+    } elseif (isset($_GET["add_project"])) {
+        $content = renderTemplate("templates/addproject.php", []);
+        $className = "overlay";
     } elseif (isset($_GET["project_id"])) {
         $categoryId = $_GET["project_id"];
-        $tasksInCategory = [];
-        if (array_key_exists($categoryId, $categories)) {
-            foreach ($tasks as $task) {
-                if ($task["project"] === $categories[$categoryId]) {
-                    $filteredTask = $task;
-                    array_push($tasksInCategory, $filteredTask);
-                }
-            }
-            $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasksInCategory]);
-        } else {
+        $checkQuery = "SELECT * FROM tasks WHERE project_id = '$categoryId'";
+        $resultCheck = mysqli_query($dbc, $checkQuery);
+        if (mysqli_num_rows($resultCheck) === 0) {
             http_response_code(404);
             $content = "Категория не найдена";
         }
+        $showQuery = "SELECT id, name, project_id, DATE_FORMAT(date_done, '%d.%m.%Y') AS date_done, completed
+            FROM tasks
+            WHERE project_id = '$categoryId'
+            AND author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"]  . "')";
+        $filteredTask = mysqli_query($dbc, $showQuery);
+        $tasksInCategory = createArrayTasks($filteredTask);
+        $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasksInCategory]);
     } elseif (isset($_POST["add"])) {
         $task = $_POST;
         if (empty($task["name"])) {
@@ -161,7 +115,32 @@ if (isset($_SESSION["user"])) {
                 `image` = '$imagePath'";
             $result = mysqli_query($dbc, $query);
             if (!$result) {
-                print("Произошла ошибка при выполнении запроса: " . mysqli_error($dbc));
+                print("Произошла ошибка при добавлении задачи: " . mysqli_error($dbc));
+            } else {
+                header("Location: /");
+            }
+        }
+    } elseif (isset($_POST["add_project"])) {
+        $newProject = $_POST;
+        if (empty($newProject["name"])) {
+            $projectErrors += ["name" => "Это поле обязательно к заполнению"];
+        } else {
+            $project = mysqli_real_escape_string($dbc, $newProject["name"]);
+            $checkQuery = "SELECT * FROM projects WHERE project_name = '$project'";
+            $check = mysqli_query($dbc, $checkQuery);
+            if (mysqli_num_rows($check) !== 0) {
+                $projectErrors += ["already_exists_name" => "Такая категория уже существует"];
+            }
+        }
+        
+        if (count($projectErrors)) {
+            $content = renderTemplate("templates/addproject.php", ["projectErrors" => $projectErrors]);
+            $className = "overlay";
+        } else {
+            $addQuery = "INSERT INTO projects SET project_name = '$project', author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"] . "')";
+            $result = mysqli_query($dbc, $addQuery);
+            if (!$result) {
+                print("Произошла ошибка при добавлении проекта: " . mysqli_error($dbc));
             } else {
                 header("Location: /");
             }
@@ -240,7 +219,7 @@ if (isset($_SESSION["user"])) {
             `contacts` = '$contacts'";
         $result = mysqli_query($dbc, $query);
         if (!$result) {
-            print("Произошла ошибка при выполнении запроса: " . mysqli_error($dbc));
+            print("Произошла ошибка при регистрации пользователя: " . mysqli_error($dbc));
         } else {
             header("Location: /");
         }

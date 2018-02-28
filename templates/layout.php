@@ -64,8 +64,7 @@
                     </ul>
                 </nav>
                 
-                <a class="button button--transparent button--plus content__side-button" href="?user_projects">Ваши проекты (<?=strip_tags($_SESSION["user"]["nick"]); ?>)</a>
-                <a class="button button--transparent button--plus content__side-button" href="#">Добавить проект</a>
+                <a class="button button--transparent button--plus content__side-button" href="?add_project">Добавить проект</a>
             </section>
             <?php endif; ?>
 

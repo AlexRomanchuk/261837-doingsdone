@@ -24,13 +24,15 @@ function countDays ($currentDate, $nextDate) {
     return floor((strtotime($nextDate) - strtotime($currentDate)) / SECONS_IN_DAY);
 }
 
-function searchByEmail($email, $users) {
-    $result = "";
-    foreach ($users as $user) {
-        if ($user["email"] == $email) {
-            $result = $user;
-            break;
-        }
+function createArrayTasks($result) {
+    $arrayTasks = [];
+    while ($row = mysqli_fetch_array($result)) {
+        $arrayTasks += [$row["id"] => [
+            "name" => $row["name"],
+            "project" => $row["project_id"],
+            "date" => $row["date_done"],
+            "completed" => $row["completed"],
+        ]];
     }
-    return $result;
+    return $arrayTasks;
 }
