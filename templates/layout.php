@@ -47,24 +47,24 @@
 
                 <nav class="main-navigation">
                     <ul class="main-navigation__list">
-                        <?php foreach ($categories as $index => $category): ?>
+                        <?php foreach ($categories as $id => $category): ?>
                         <li class="main-navigation__list-item 
-                            <?php if ($index === 0): ?>
+                            <?php if (isset($_GET["project_id"]) && $_GET["project_id"] == $id): ?>
                                 main-navigation__list-item--active
                             <?php endif; ?>">
                             <a class="main-navigation__list-item-link" href="
-                            <?php if ($index !== 0): ?>
-                                index.php?project_id=<?=$index ?>
+                            <?php if ($id !== 0): ?>
+                                index.php?project_id=<?=$id; ?>
                             <?php else: ?>
                                 /
                             <?php endif; ?>"><?=strip_tags($category); ?></a>
-                            <span class="main-navigation__list-item-count"><?=countTasks ($tasks, $category); ?></span>
+                            <span class="main-navigation__list-item-count"><?=countTasks ($tasks, $id); ?></span>
                         </li>
                         <?php endforeach; ?>
                     </ul>
                 </nav>
-
-                <a class="button button--transparent button--plus content__side-button" href="#">Добавить проект</a>
+                
+                <a class="button button--transparent button--plus content__side-button" href="?add_project">Добавить проект</a>
             </section>
             <?php endif; ?>
 

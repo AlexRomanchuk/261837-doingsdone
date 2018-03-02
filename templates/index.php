@@ -26,9 +26,9 @@
 
     <table class="tasks">
     <!--показывать следующий тег <tr/>, если переменная $show_complete_tasks равна единице-->
-        <?php foreach ($tasks as $task): ?>
+        <?php foreach ($tasks as $id => $task): ?>
             <tr class="tasks__item task 
-                <?php if ($task["completed"] === true): ?>
+                <?php if ($task["completed"] === "1"): ?>
                     task--completed
                 <?php endif; ?>
                 <?php if (countDays($date, $task["date"]) <= 1 && $task["date"] !== ""): ?>
@@ -37,13 +37,13 @@
                 <td class="task__select">
                     <label class="checkbox task__checkbox">
                         <input class="checkbox__input visually-hidden" type="checkbox" checked>
-                        <a href="/"><span class="checkbox__text"><?=strip_tags($task["name"]); ?></span></a>
+                        <a href="?task_id=<?=$id; ?>"><span class="checkbox__text"><?=strip_tags($task["name"]); ?></span></a>
                     </label>
                 </td>
                 
                 <td class="task__file">
-                <?php if (isset($task["preview"]) && $task["preview"] !== ""): ?>
-                    <a class="download-link" href="<?=$task["preview"]; ?>"><?=$task["preview"]; ?></a>
+                <?php if (isset($task["image"]) && $task["image"] !== ""): ?>
+                    <a class="download-link" href="<?=$task["image"]; ?>"><?=$task["image"]; ?></a>
                 <?php endif; ?>
                 </td>
                 
