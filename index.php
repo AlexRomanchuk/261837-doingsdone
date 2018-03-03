@@ -25,57 +25,82 @@ $tasks = [];
 
 $showCompleted = 1;
 
-if (isset($_GET["show_completed"])) {
-    if (isset($_COOKIE["showcompl"])) {
-        $showCompleted = ($_COOKIE["showcompl"]) == 1 ? 0 : 1;
-    }
-    setcookie("showcompl", $showCompleted);
-    header("Location: /");
-}
-
-$completed = (isset($_COOKIE["showcompl"])) ? $_COOKIE["showcompl"] : "";
-
 session_start();
 
 $dbc = mysqli_connect("localhost", "root", "", "doingsdone");
 
 if (!$dbc) {
-    print("Ошибка подключения к БД:" . mysqli_connect_error());
+    die("Ошибка подключения к БД:" . mysqli_connect_error());
 }
 
 if (isset($_SESSION["user"])) {
-    $query = "SELECT id, project_name FROM projects WHERE author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"]  . "')";
+    if (isset($_GET["show_completed"])) {
+        if (isset($_COOKIE["showcompl"])) {
+            $showCompleted = ($_COOKIE["showcompl"]) == 1 ? 0 : 1;
+        }
+        setcookie("showcompl", $showCompleted);
+        header("Location: /");
+    }
+    
+    $completed = (isset($_COOKIE["showcompl"])) ? $_COOKIE["showcompl"] : "0";
+    
+    $query = "SELECT id, project_name FROM projects";
     $result = mysqli_query($dbc, $query);
     while ($row = mysqli_fetch_array($result)) {
         $categories += [$row["id"] => $row["project_name"]];
     }
-    
-    $queryTasks = "SELECT id, name, project_id, DATE_FORMAT(date_done, '%d.%m.%Y') AS date_done, completed
+    // подготовка запроса
+    $queryTasks = "SELECT id, name, project_id, DATE_FORMAT(date_done, '%d.%m.%Y') AS date_done, completed, image
         FROM tasks
         WHERE author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"]  . "')";
-    $userTasks = mysqli_query($dbc, $queryTasks);
-    $tasks = createArrayTasks($userTasks);
-    if (isset($_GET["add"])) {
-        $content = renderTemplate("templates/addtask.php", ["categories" => $categories]);
-        $className = "overlay";
-    } elseif (isset($_GET["add_project"])) {
-        $content = renderTemplate("templates/addproject.php", []);
-        $className = "overlay";
+    
+    // общее кол-во задач у пользователя (для меню проектов)
+    $allTasks = createArrayTasks(mysqli_query($dbc, $queryTasks));
+    
+    if ($completed === "0") {
+        $queryTasks = $queryTasks . " AND completed = 0";
+    }
+    // выборка и сборка запроса
+    if (isset($_GET["all"])) {
+        $tasks = selectTasksOnFilter($dbc, $queryTasks);
+        $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
+    } elseif (isset($_GET["on_day"])) {
+        $tasks = selectTasksOnFilter($dbc, $queryTasks . " AND date_done = '$currentDate'");
+        $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
+    } elseif (isset($_GET["on_tomorrow"])) {
+        $tasks = selectTasksOnFilter($dbc, $queryTasks . " AND date_done = '$currentDate'");
+        $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
+    } elseif (isset($_GET["not_done"])) {
+        $tasks = selectTasksOnFilter($dbc, $queryTasks . " AND date_done < '$currentDate'");
+        $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
+    } elseif (isset($_GET["task_id"])) {
+        $check = "SELECT completed FROM tasks WHERE id = '" . $_GET["task_id"] . "'";
+        $result = mysqli_query($dbc, $check);
+        $completed = mysqli_fetch_array($result);
+        $query = ($completed["completed"] === '0') ?
+            "UPDATE tasks SET completed = 1, date_compl = NOW() WHERE id = '" . $_GET["task_id"] . "'" : 
+            "UPDATE tasks SET completed = 0, date_compl = NULL WHERE id = '" . $_GET["task_id"] . "'";
+        mysqli_query($dbc, $query);
+        header("location: /");
     } elseif (isset($_GET["project_id"])) {
         $categoryId = $_GET["project_id"];
-        $checkQuery = "SELECT * FROM tasks WHERE project_id = '$categoryId'";
+        $checkQuery = $queryTasks . " AND project_id = '$categoryId'";
         $resultCheck = mysqli_query($dbc, $checkQuery);
         if (mysqli_num_rows($resultCheck) === 0) {
             http_response_code(404);
             $content = "Категория не найдена";
         }
-        $showQuery = "SELECT id, name, project_id, DATE_FORMAT(date_done, '%d.%m.%Y') AS date_done, completed
-            FROM tasks
-            WHERE project_id = '$categoryId'
+        $queryTasks = $queryTasks . " AND project_id = '$categoryId'
             AND author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"]  . "')";
-        $filteredTask = mysqli_query($dbc, $showQuery);
-        $tasksInCategory = createArrayTasks($filteredTask);
-        $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasksInCategory]);
+        $tasks = selectTasksOnFilter($dbc, $queryTasks);
+        $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
+    } elseif (isset($_GET["add"])) {
+        // модальные окна и добавление данных
+        $content = renderTemplate("templates/addtask.php", ["categories" => $categories]);
+        $className = "overlay";
+    } elseif (isset($_GET["add_project"])) {
+        $content = renderTemplate("templates/addproject.php", []);
+        $className = "overlay";
     } elseif (isset($_POST["add"])) {
         $task = $_POST;
         if (empty($task["name"])) {
@@ -83,9 +108,13 @@ if (isset($_SESSION["user"])) {
         }
         if (empty($task["project"])) {
             $addErrors += ["project" => "Укажите категорию"];
-        }
-        if (empty($task["date"])) {
-            $addErrors += ["date" => "Дату надо указать"];
+        } else {
+            $project = mysqli_real_escape_string($dbc, $task["project"]);
+            $checkQuery = "SELECT * FROM projects WHERE project_name = '$project'";
+            $check = mysqli_query($dbc, $checkQuery);
+            if (mysqli_num_rows($check) === 0) {
+                $errors += ["project" => "Данного проекта не существует"];
+            }
         }
         if (isset($_FILES["preview"]["name"])) {
             $tmpName = $_FILES["preview"]["tmp_name"];
@@ -115,7 +144,7 @@ if (isset($_SESSION["user"])) {
                 `image` = '$imagePath'";
             $result = mysqli_query($dbc, $query);
             if (!$result) {
-                print("Произошла ошибка при добавлении задачи: " . mysqli_error($dbc));
+                $content = "Произошла ошибка при добавлении задачи: " . mysqli_error($dbc);
             } else {
                 header("Location: /");
             }
@@ -140,14 +169,18 @@ if (isset($_SESSION["user"])) {
             $addQuery = "INSERT INTO projects SET project_name = '$project', author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"] . "')";
             $result = mysqli_query($dbc, $addQuery);
             if (!$result) {
-                print("Произошла ошибка при добавлении проекта: " . mysqli_error($dbc));
+                $content = "Произошла ошибка при добавлении проекта: " . mysqli_error($dbc);
             } else {
                 header("Location: /");
             }
         }
     } else {
+        $userTasks = mysqli_query($dbc, $queryTasks);
+        $tasks = createArrayTasks($userTasks);
         $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
     }
+    
+    print(renderTemplate("templates/layout.php", ["className" => $className, "categories" => $categories, "tasks" => $allTasks, "content" => $content, "title" => $siteName]));
 } elseif (isset($_GET["login"])) {
     $content = renderTemplate("templates/auth_form.php", []);
     $className = "overlay";
@@ -228,4 +261,4 @@ if (isset($_SESSION["user"])) {
     $content = renderTemplate("templates/guest.php", []);
 }
 
-print(renderTemplate("templates/layout.php", ["className" => $className, "categories" => $categories, "tasks" => $tasks, "content" => $content, "title" => $siteName, "userName" => $userName]));
+print(renderTemplate("templates/layout.php", ["className" => $className, "content" => $content, "title" => $siteName]));
