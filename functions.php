@@ -31,8 +31,18 @@ function createArrayTasks($result) {
             "name" => $row["name"],
             "project" => $row["project_id"],
             "date" => $row["date_done"],
+            "image" => $row["image"],
             "completed" => $row["completed"],
         ]];
     }
     return $arrayTasks;
+}
+
+function selectTasksOnFilter($db, $sql) {
+    $result = mysqli_query($db, $sql);
+    if (!$result) {
+        die("Ошибка в SQL при извлечении данных: " . mysqli_error($db));
+    }
+    $tasks = createArrayTasks($result);
+    return $tasks;
 }

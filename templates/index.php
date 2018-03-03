@@ -8,10 +8,10 @@
 
     <div class="tasks-controls">
         <nav class="tasks-switch">
-            <a href="/" class="tasks-switch__item tasks-switch__item--active">Все задачи</a>
-            <a href="/" class="tasks-switch__item">Повестка дня</a>
-            <a href="/" class="tasks-switch__item">Завтра</a>
-            <a href="/" class="tasks-switch__item">Просроченные</a>
+            <a href="?all" class="tasks-switch__item tasks-switch__item--active">Все задачи</a>
+            <a href="?on_day" class="tasks-switch__item">Повестка дня</a>
+            <a href="?on_tomorrow" class="tasks-switch__item">Завтра</a>
+            <a href="?not_done" class="tasks-switch__item">Просроченные</a>
         </nav>
 
         <label class="checkbox">
@@ -25,7 +25,6 @@
     </div>
 
     <table class="tasks">
-    <!--показывать следующий тег <tr/>, если переменная $show_complete_tasks равна единице-->
         <?php foreach ($tasks as $id => $task): ?>
             <tr class="tasks__item task 
                 <?php if ($task["completed"] === "1"): ?>
@@ -36,7 +35,9 @@
                 <?php endif; ?>">
                 <td class="task__select">
                     <label class="checkbox task__checkbox">
-                        <input class="checkbox__input visually-hidden" type="checkbox" checked>
+                        <input class="checkbox__input visually-hidden" type="checkbox" <?php if ($task["completed"] === "1"): ?>
+                           checked
+                        <?php endif; ?>>
                         <a href="?task_id=<?=$id; ?>"><span class="checkbox__text"><?=strip_tags($task["name"]); ?></span></a>
                     </label>
                 </td>
@@ -50,17 +51,4 @@
                 <td class="task__date"><?=$task["date"]; ?></td>
             </tr>
         <?php endforeach; ?>
-    
-		<?php if ($completed): ?>
-		    <tr class="tasks__item task task--completed">
-                <td class="task__select">
-                    <label class="checkbox task__checkbox">
-                        <input class="checkbox__input visually-hidden" type="checkbox" checked>
-                        <span class="checkbox__text">Записаться на интенсив "Базовый PHP"</span>
-                    </label>
-                </td>
-                <td class="task__date">10.04.2017</td>
-				<td class="task__controls"></td>
-            </tr>
-		<?php endif; ?>
     </table>

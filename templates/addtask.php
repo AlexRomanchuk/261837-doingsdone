@@ -39,11 +39,7 @@ $preview = $_POST["preview"] ?? "";
 
     <div class="form__row">
       <label class="form__label" for="date">Дата выполнения</label>
-        <?php if (isset($errors["date"])): ?>
-            <p class="form__message"><?=$errors["date"]; ?></p>
-        <?php endif; ?>
-      <input class="form__input form__input--date
-        <?=isset($errors["date"]) ? "form__input--error" : ""; ?>" type="date" name="date" id="date" value="<?=$date; ?>" placeholder="Введите дату в формате ДД.ММ.ГГГГ">
+      <input class="form__input form__input--date" type="date" name="date" id="date" value="<?=$date; ?>" placeholder="Введите дату в формате ДД.ММ.ГГГГ">
     </div>
 
     <div class="form__row">
