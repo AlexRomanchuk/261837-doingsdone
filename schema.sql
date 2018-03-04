@@ -16,10 +16,10 @@ contacts TEXT
 CREATE TABLE tasks (
 id INT AUTO_INCREMENT PRIMARY KEY,
 name VARCHAR(50) NOT NULL,
-date_done DATETIME NOT NULL,
-date_compl DATETIME,
-date_created DATETIME NOT NULL,
-image VARCHAR(32),
+date_done CHAR(25),
+date_compl DATE,
+date_created DATE NOT NULL,
+image VARCHAR(40),
 author_id INT NOT NULL,
 project_id INT NOT NULL,
 completed TINYINT DEFAULT 0

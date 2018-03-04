@@ -1,7 +1,6 @@
 <?php
 
 require_once("functions.php");
-require_once("userdata.php");
 
 define("SECONS_IN_DAY", 86400);
 

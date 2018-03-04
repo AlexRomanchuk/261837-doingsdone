@@ -56,7 +56,7 @@
                 <?php endif; ?>
                 </td>
                 
-                <td class="task__date"><?=$task["date"]; ?></td>
+                <td class="task__date"><?=date("d.m.Y", strtotime($task["date"])); ?></td>
             </tr>
         <?php endforeach; ?>
     </table>

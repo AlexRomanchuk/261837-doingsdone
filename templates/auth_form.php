@@ -3,7 +3,7 @@ $email = $_POST["email"] ?? "";
 $password = $_POST["password"] ?? "";
 ?>
 <div class="modal">
-  <button class="modal__close" type="button" name="button">Закрыть</button>
+  <a href="index.php" class="modal__close">Закрыть</a>
 
   <h2 class="modal__heading">Вход на сайт</h2>
 

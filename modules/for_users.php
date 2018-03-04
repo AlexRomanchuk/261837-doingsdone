@@ -15,7 +15,7 @@
         $categories += [$row["id"] => $row["project_name"]];
     }
     // подготовка запроса
-    $queryTasks = "SELECT id, name, project_id, DATE_FORMAT(date_done, '%d.%m.%Y') AS date_done, completed, image
+    $queryTasks = "SELECT id, name, project_id, date_done, completed, image
         FROM tasks
         WHERE author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"]  . "')";
     
@@ -71,6 +71,9 @@
         if (empty($task["name"])) {
             $addErrors += ["name" => "Заполните это поле"];
         }
+        if (!empty($task["date"]) && time() > strtotime($task["date"])) {
+            $addErrors += ["date" => "Неверная дата"];
+        }
         if (empty($task["project"])) {
             $addErrors += ["project" => "Укажите категорию"];
         } else {
@@ -94,6 +97,7 @@
             $content = renderTemplate("templates/addtask.php", ["errors" => $addErrors, "categories" => $categories]);
             $className = "overlay";
 	    } else {
+            $addErrors += ["project" => "Укажите категорию"];
             $imagePath = "" . $path;
             move_uploaded_file($tmpName, $imagePath);
             $email = $_SESSION["user"]["email"];

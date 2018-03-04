@@ -5,7 +5,7 @@ $project = $_POST["project"] ?? "";
 $preview = $_POST["preview"] ?? "";
 ?>
 <div class="modal">
-  <button class="modal__close" type="button" name="button">Закрыть</button>
+  <a href="index.php" class="modal__close">Закрыть</a>
 
   <h2 class="modal__heading">Добавление задачи</h2>
 
@@ -15,19 +15,19 @@ $preview = $_POST["preview"] ?? "";
         <?php if (isset($errors["name"])): ?>
             <p class="form__message"><?=$errors["name"]; ?></p>
         <?php endif; ?>
-      <input class="form__input
-        <?=isset($errors["name"]) ? "form__input--error" : ""; ?>" type="text" name="name" id="name" value="<?=$name; ?>" placeholder="Введите название">
+      <input class="form__input <?=isset($errors["name"]) ? "form__input--error" : ""; ?>" type="text" name="name" id="name" value="<?=$name; ?>" placeholder="Введите название">
     </div>
 
     <div class="form__row">
       <label class="form__label" for="project">Проект <sup>*</sup></label>
         <?php if (isset($errors["project"])): ?>
-            <p class="form__message"><?=$errors["project"]; ?></p>
+          <p class="form__message"><?=$errors["project"]; ?></p>
         <?php endif; ?>
       <select class="form__input form__input--select
         <?=isset($errors["project"]) ? "form__input--error" : ""; ?>" name="project" id="project">
+        <option value="Входящие" selected>Входящие</option>
         <?php foreach($categories as $category): ?>
-          <?php if ($category !== "Все"): ?>
+          <?php if ($category !== "Входящие"): ?>
             <option value="<?=$category; ?>" <?php if ($project === $category): ?>
                 selected
             <?php endif; ?>>
@@ -39,7 +39,10 @@ $preview = $_POST["preview"] ?? "";
 
     <div class="form__row">
       <label class="form__label" for="date">Дата выполнения</label>
-      <input class="form__input form__input--date" type="date" name="date" id="date" value="<?=$date; ?>" placeholder="Введите дату в формате ДД.ММ.ГГГГ">
+      <?php if (isset($errors["date"])): ?>
+        <p class="form__message"><?=$errors["date"]; ?></p>
+      <?php endif; ?>
+      <input class="form__input form__input--date <?=isset($errors["date"]) ? "form__input--error" : ""; ?>" type="date" name="date" id="date" value="<?=$date; ?>" placeholder="Введите дату в формате ДД.ММ.ГГГГ">
     </div>
 
     <div class="form__row">
