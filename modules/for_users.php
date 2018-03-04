@@ -14,18 +14,18 @@
     while ($row = mysqli_fetch_array($result)) {
         $categories += [$row["id"] => $row["project_name"]];
     }
-    // подготовка запроса
+    // РїРѕРґРіРѕС‚РѕРІРєР° Р·Р°РїСЂРѕСЃР°
     $queryTasks = "SELECT id, name, project_id, DATE_FORMAT(date_done, '%d.%m.%Y') AS date_done, completed, image
         FROM tasks
         WHERE author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"]  . "')";
     
-    // общее кол-во задач у пользователя (для меню проектов)
+    // РѕР±С‰РµРµ РєРѕР»-РІРѕ Р·Р°РґР°С‡ Сѓ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ (РґР»СЏ РјРµРЅСЋ РїСЂРѕРµРєС‚РѕРІ)
     $allTasks = createArrayTasks(mysqli_query($dbc, $queryTasks));
     
     if ($completed === "0") {
         $queryTasks = $queryTasks . " AND completed = 0";
     }
-    // выборка и сборка запроса
+    // РІС‹Р±РѕСЂРєР° Рё СЃР±РѕСЂРєР° Р·Р°РїСЂРѕСЃР°
     if (isset($_GET["all"])) {
         $tasks = selectTasksOnFilter($dbc, $queryTasks);
         $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
@@ -33,7 +33,7 @@
         $tasks = selectTasksOnFilter($dbc, $queryTasks . " AND date_done = '$currentDate'");
         $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
     } elseif (isset($_GET["on_tomorrow"])) {
-        $tasks = selectTasksOnFilter($dbc, $queryTasks . " AND date_done = '$currentDate'");
+        $tasks = selectTasksOnFilter($dbc, $queryTasks . " AND date_done = '" . date("Y-m-d", strtotime("+1 day")) . "'");
         $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
     } elseif (isset($_GET["not_done"])) {
         $tasks = selectTasksOnFilter($dbc, $queryTasks . " AND date_done < '$currentDate'");
@@ -53,14 +53,14 @@
         $resultCheck = mysqli_query($dbc, $checkQuery);
         if (mysqli_num_rows($resultCheck) === 0) {
             http_response_code(404);
-            $content = "Категория не найдена";
+            $content = "РљР°С‚РµРіРѕСЂРёСЏ РЅРµ РЅР°Р№РґРµРЅР°";
         }
         $queryTasks = $queryTasks . " AND project_id = '$categoryId'
             AND author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"]  . "')";
         $tasks = selectTasksOnFilter($dbc, $queryTasks);
         $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
     } elseif (isset($_GET["add"])) {
-        // модальные окна и добавление данных
+        // РјРѕРґР°Р»СЊРЅС‹Рµ РѕРєРЅР° Рё РґРѕР±Р°РІР»РµРЅРёРµ РґР°РЅРЅС‹С…
         $content = renderTemplate("templates/addtask.php", ["categories" => $categories]);
         $className = "overlay";
     } elseif (isset($_GET["add_project"])) {
@@ -69,16 +69,16 @@
     } elseif (isset($_POST["add"])) {
         $task = $_POST;
         if (empty($task["name"])) {
-            $addErrors += ["name" => "Заполните это поле"];
+            $addErrors += ["name" => "Р—Р°РїРѕР»РЅРёС‚Рµ СЌС‚Рѕ РїРѕР»Рµ"];
         }
         if (empty($task["project"])) {
-            $addErrors += ["project" => "Укажите категорию"];
+            $addErrors += ["project" => "РЈРєР°Р¶РёС‚Рµ РєР°С‚РµРіРѕСЂРёСЋ"];
         } else {
             $project = mysqli_real_escape_string($dbc, $task["project"]);
             $checkQuery = "SELECT * FROM projects WHERE project_name = '$project'";
             $check = mysqli_query($dbc, $checkQuery);
             if (mysqli_num_rows($check) === 0) {
-                $errors += ["project" => "Данного проекта не существует"];
+                $errors += ["project" => "Р”Р°РЅРЅРѕРіРѕ РїСЂРѕРµРєС‚Р° РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚"];
             }
         }
         if (isset($_FILES["preview"]["name"])) {
@@ -86,7 +86,7 @@
             $path = $_FILES["preview"]["name"];
             $fileType = $_FILES["preview"]["type"];
             if ($fileType !== "image/png " && $fileType !== "image/jpeg" && $fileType !== "image/gif" && $fileType !== "") {
-                $addErrors += ["preview" => "Недопустимый формат файла"];
+                $addErrors += ["preview" => "РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ С„РѕСЂРјР°С‚ С„Р°Р№Р»Р°"];
             }
         }
     
@@ -109,7 +109,7 @@
                 `image` = '$imagePath'";
             $result = mysqli_query($dbc, $query);
             if (!$result) {
-                $content = "Произошла ошибка при добавлении задачи: " . mysqli_error($dbc);
+                $content = "РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° РїСЂРё РґРѕР±Р°РІР»РµРЅРёРё Р·Р°РґР°С‡Рё: " . mysqli_error($dbc);
             } else {
                 header("Location: /");
             }
@@ -117,13 +117,13 @@
     } elseif (isset($_POST["add_project"])) {
         $newProject = $_POST;
         if (empty($newProject["name"])) {
-            $projectErrors += ["name" => "Это поле обязательно к заполнению"];
+            $projectErrors += ["name" => "Р­С‚Рѕ РїРѕР»Рµ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ Рє Р·Р°РїРѕР»РЅРµРЅРёСЋ"];
         } else {
             $project = mysqli_real_escape_string($dbc, $newProject["name"]);
             $checkQuery = "SELECT * FROM projects WHERE project_name = '$project'";
             $check = mysqli_query($dbc, $checkQuery);
             if (mysqli_num_rows($check) !== 0) {
-                $projectErrors += ["already_exists_name" => "Такая категория уже существует"];
+                $projectErrors += ["already_exists_name" => "РўР°РєР°СЏ РєР°С‚РµРіРѕСЂРёСЏ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚"];
             }
         }
         
@@ -134,7 +134,7 @@
             $addQuery = "INSERT INTO projects SET project_name = '$project', author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"] . "')";
             $result = mysqli_query($dbc, $addQuery);
             if (!$result) {
-                $content = "Произошла ошибка при добавлении проекта: " . mysqli_error($dbc);
+                $content = "РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° РїСЂРё РґРѕР±Р°РІР»РµРЅРёРё РїСЂРѕРµРєС‚Р°: " . mysqli_error($dbc);
             } else {
                 header("Location: /");
             }

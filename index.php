@@ -6,7 +6,7 @@ require_once("userdata.php");
 define("SECONS_IN_DAY", 86400);
 
 $siteName = "Дела в порядке";
-$currentDate = date("d.n.Y");
+$currentDate = date("Y-m-d");
 $filteredTask = null;
 $className = "";
 $addErrors = [];

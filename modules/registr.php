@@ -1,21 +1,21 @@
 <?php
     $newUser = $_POST;
     if (empty($newUser["email"])) {
-        $registrErrors["email"] += ["missing_email" => "Введите e-mail"];
+        $registrErrors["email"] += ["missing_email" => "Р’РІРµРґРёС‚Рµ e-mail"];
     }
     if (empty($newUser["password"])) {
-        $registrErrors["password"] += ["missing_password" => "Введите пароль"];
+        $registrErrors["password"] += ["missing_password" => "Р’РІРµРґРёС‚Рµ РїР°СЂРѕР»СЊ"];
     }
     if (empty($newUser["name"])) {
-        $registrErrors["name"] += ["missing_name" => "Введите имя"];
+        $registrErrors["name"] += ["missing_name" => "Р’РІРµРґРёС‚Рµ РёРјСЏ"];
     }
     if (!empty($newUser["email"]) && !filter_var($newUser["email"], FILTER_VALIDATE_EMAIL)) {
-        $registrErrors["email"] += ["incorrect_email" => "Введен некорректный e-mail"];
+        $registrErrors["email"] += ["incorrect_email" => "Р’РІРµРґРµРЅ РЅРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ e-mail"];
     } else {
         $query = "SELECT * FROM users WHERE `email` = '" . $newUser["email"] . "'";
         $result = mysqli_query($dbc, $query);
         if (mysqli_num_rows($result) !== 0) {
-            $registrErrors["email"] += ["already_exists_user" => "Такой пользователь уже существует. Введите другой e-mail"];
+            $registrErrors["email"] += ["already_exists_user" => "РўР°РєРѕР№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚. Р’РІРµРґРёС‚Рµ РґСЂСѓРіРѕР№ e-mail"];
         }
     }
         
@@ -34,7 +34,7 @@
             `contacts` = '$contacts'";
         $result = mysqli_query($dbc, $query);
         if (!$result) {
-            print("Произошла ошибка при регистрации пользователя: " . mysqli_error($dbc));
+            print("РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° РїСЂРё СЂРµРіРёСЃС‚СЂР°С†РёРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ: " . mysqli_error($dbc));
         } else {
             header("Location: /");
         }

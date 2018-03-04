@@ -8,10 +8,18 @@
 
     <div class="tasks-controls">
         <nav class="tasks-switch">
-            <a href="?all" class="tasks-switch__item tasks-switch__item--active">Все задачи</a>
-            <a href="?on_day" class="tasks-switch__item">Повестка дня</a>
-            <a href="?on_tomorrow" class="tasks-switch__item">Завтра</a>
-            <a href="?not_done" class="tasks-switch__item">Просроченные</a>
+            <a href="?all" class="tasks-switch__item <?php if (isset($_GET["all"])): ?>
+              tasks-switch__item--active
+            <?php endif; ?>">Все задачи</a>
+            <a href="?on_day" class="tasks-switch__item <?php if (isset($_GET["on_day"])): ?>
+              tasks-switch__item--active
+            <?php endif;?>">Повестка дня</a>
+            <a href="?on_tomorrow" class="tasks-switch__item <?php if (isset($_GET["on_tomorrow"])): ?>
+              tasks-switch__item--active
+            <?php endif;?>">Завтра</a>
+            <a href="?not_done" class="tasks-switch__item <?php if (isset($_GET["not_done"])): ?>
+              tasks-switch__item--active
+            <?php endif;?>">Просроченные</a>
         </nav>
 
         <label class="checkbox">
