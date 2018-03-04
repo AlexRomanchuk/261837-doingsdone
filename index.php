@@ -1,5 +1,5 @@
 <?php
-
+require_once("connectdb.php");
 require_once("functions.php");
 
 define("SECONS_IN_DAY", 86400);
@@ -25,12 +25,6 @@ $tasks = [];
 $showCompleted = 1;
 
 session_start();
-
-$dbc = mysqli_connect("localhost", "root", "", "doingsdone");
-
-if (!$dbc) {
-    die("Ошибка подключения к БД:" . mysqli_connect_error());
-}
 
 if (isset($_SESSION["user"])) {
     require_once("modules/for_users.php");
