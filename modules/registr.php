@@ -12,7 +12,8 @@
     if (!empty($newUser["email"]) && !filter_var($newUser["email"], FILTER_VALIDATE_EMAIL)) {
         $registrErrors["email"] += ["incorrect_email" => "Введен некорректный e-mail"];
     } else {
-        $query = "SELECT * FROM users WHERE `email` = '" . $newUser["email"] . "'";
+        $checkEmail = mysqli_real_escape_string($dbc, $newUser["email"]);
+        $query = "SELECT * FROM users WHERE `email` = '$checkEmail'";
         $result = mysqli_query($dbc, $query);
         if (mysqli_num_rows($result) !== 0) {
             $registrErrors["email"] += ["already_exists_user" => "Такой пользователь уже существует. Введите другой e-mail"];

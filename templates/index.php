@@ -46,7 +46,7 @@
                         <input class="checkbox__input visually-hidden" type="checkbox" <?php if ($task["completed"] === "1"): ?>
                            checked
                         <?php endif; ?>>
-                        <a href="?task_id=<?=$id; ?>"><span class="checkbox__text"><?=strip_tags($task["name"]); ?></span></a>
+                        <a href="?task_id=<?=$id; ?>"><span class="checkbox__text"><?=htmlspecialchars($task["name"]); ?></span></a>
                     </label>
                 </td>
                 

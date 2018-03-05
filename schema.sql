@@ -1,3 +1,7 @@
+CREATE IF NOT EXISTS DATABASE doingsdone;
+
+USE doingsdone;
+
 CREATE TABLE projects (
 id INT AUTO_INCREMENT PRIMARY KEY,
 project_name VARCHAR(40) NOT NULL,
@@ -28,6 +32,7 @@ completed TINYINT DEFAULT 0
 CREATE UNIQUE INDEX email ON users(email);
 CREATE UNIQUE INDEX password ON users(password);
 CREATE UNIQUE INDEX project_name ON projects(project_name);
+CREATE INDEX auhtor_id ON projects(author_id);
 CREATE INDEX name ON tasks(name);
 CREATE INDEX author_id ON tasks(author_id);
 CREATE INDEX project_id ON tasks(project_id);

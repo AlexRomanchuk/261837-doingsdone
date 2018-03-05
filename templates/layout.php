@@ -29,7 +29,7 @@
                         </div>
 
                         <div class="user-menu__data">
-                            <p><?=strip_tags($_SESSION["user"]["nick"]); ?></p>
+                            <p><?=htmlspecialchars($_SESSION["user"]["nick"]); ?></p>
 
                             <a href="logout.php">Выйти</a>
                         </div>
@@ -50,7 +50,7 @@
                         <?php foreach ($categories as $id => $category): ?>
                           <?php if ($category === "Входящие"): ?>
                             <li class="main-navigation__list-item 
-                              <?php if (isset($_GET["project_id"]) && $_GET["project_id"] === "$id"): ?>
+                              <?php if (isset($_GET["project_id"]) && $_GET["project_id"] === "$id" || isset($_GET["all"]) && $projectId === "$id"): ?>
                                 main-navigation__list-item--active
                               <?php endif; ?>">
                               <a class="main-navigation__list-item-link" href="index.php?project_id=<?=$id; ?>"><?=$category; ?></a>
@@ -61,10 +61,10 @@
                         <?php foreach ($categories as $id => $category): ?>
                           <?php if ($category !== "Входящие"): ?>
                             <li class="main-navigation__list-item 
-                              <?php if (isset($_GET["project_id"]) && $_GET["project_id"] === "$id"): ?>
+                              <?php if (isset($_GET["project_id"]) && $_GET["project_id"] === "$id" || isset($_GET["all"]) && $projectId === "$id"): ?>
                                 main-navigation__list-item--active
                               <?php endif; ?>">
-                              <a class="main-navigation__list-item-link" href="index.php?project_id=<?=$id; ?>"><?=strip_tags($category); ?></a>
+                              <a class="main-navigation__list-item-link" href="index.php?project_id=<?=$id; ?>"><?=htmlspecialchars($category); ?></a>
                               <span class="main-navigation__list-item-count"><?=countTasks ($tasks, $id); ?></span>
                             </li>
                           <?php endif; ?>

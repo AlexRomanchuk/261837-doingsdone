@@ -3,7 +3,10 @@
     if (empty($task["name"])) {
         $addErrors += ["name" => "Заполните это поле"];
     }
-    if (!empty($task["date"]) && time() > strtotime($task["date"])) {
+    if (empty($task["date"])) {
+        $addErrors += ["date" => "Дата не указана"];
+    }
+    if (!empty($task["date"]) && strtotime($currentDate) > strtotime($task["date"])) {
         $addErrors += ["date" => "Неверная дата"];
     }
     if (empty($task["project"])) {

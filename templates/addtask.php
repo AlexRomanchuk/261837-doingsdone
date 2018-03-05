@@ -38,7 +38,7 @@ $preview = $_POST["preview"] ?? "";
     </div>
 
     <div class="form__row">
-      <label class="form__label" for="date">Дата выполнения</label>
+      <label class="form__label" for="date">Дата выполнения <sup>*</sup></label>
       <?php if (isset($errors["date"])): ?>
         <p class="form__message"><?=$errors["date"]; ?></p>
       <?php endif; ?>

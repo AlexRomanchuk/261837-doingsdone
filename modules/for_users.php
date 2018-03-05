@@ -4,12 +4,29 @@
             $showCompleted = ($_COOKIE["showcompl"]) == 1 ? 0 : 1;
         }
         setcookie("showcompl", $showCompleted);
-        header("Location: /");
+        if (isset($_COOKIE["projectId"])) {
+            header("location: /?project_id=" . $_COOKIE["projectId"]);
+        } else {
+            header("Location: /");
+        }
+    }
+    
+    if (isset($_GET["project_id"])) {
+        $projectId = $_GET["project_id"];
+        if (isset($_COOKIE["projectId"])) {
+            $projectId = ($_COOKIE["projectId"]) == $_GET["project_id"] ? "" : $_GET["project_id"];
+        }
+        setcookie("projectId", $projectId);
     }
     
     $completed = (isset($_COOKIE["showcompl"])) ? $_COOKIE["showcompl"] : "0";
+    $projectId = (isset($_COOKIE["projectId"])) ? $_COOKIE["projectId"] : "";
     
-    $query = "SELECT id, project_name FROM projects";
+    // Выбор проектов пользователя, "Входящие" - общая для всех
+    $query = "SELECT id, project_name 
+        FROM projects 
+        WHERE author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"] . "')
+        OR project_name = 'Входящие'";
     $result = mysqli_query($dbc, $query);
     while ($row = mysqli_fetch_array($result)) {
         $categories += [$row["id"] => $row["project_name"]];
@@ -27,6 +44,9 @@
     }
     // выборка и сборка запроса
     if (isset($_GET["all"])) {
+        if (isset($_COOKIE["projectId"])) {
+            $queryTasks = $queryTasks . " AND project_id = '" . $_COOKIE["projectId"] ."'";
+        }
         $tasks = selectTasksOnFilter($dbc, $queryTasks);
         $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
     } elseif (isset($_GET["on_day"])) {
@@ -46,14 +66,21 @@
             "UPDATE tasks SET completed = 1, date_compl = NOW() WHERE id = '" . $_GET["task_id"] . "'" : 
             "UPDATE tasks SET completed = 0, date_compl = NULL WHERE id = '" . $_GET["task_id"] . "'";
         mysqli_query($dbc, $query);
-        header("location: /");
+        if (isset($_COOKIE["projectId"])) {
+            header("location: /?project_id=" . $_COOKIE["projectId"]);
+        } else {
+            header("Location: /");
+        }
+        
     } elseif (isset($_GET["project_id"])) {
         $categoryId = $_GET["project_id"];
-        $checkQuery = $queryTasks . " AND project_id = '$categoryId'";
+        $checkQuery = "SELECT * FROM projects WHERE id = '$categoryId'";
         $resultCheck = mysqli_query($dbc, $checkQuery);
         if (mysqli_num_rows($resultCheck) === 0) {
             http_response_code(404);
             $content = "Категория не найдена";
+        } else {
+            $queryTasks = $queryTasks . " AND project_id = '$categoryId'";
         }
         $queryTasks = $queryTasks . " AND project_id = '$categoryId'
             AND author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"]  . "')";
@@ -76,4 +103,4 @@
         $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
     }
     
-    print(renderTemplate("templates/layout.php", ["className" => $className, "categories" => $categories, "tasks" => $allTasks, "content" => $content, "title" => $siteName]));
+    print(renderTemplate("templates/layout.php", ["projectId" => $projectId, "className" => $className, "categories" => $categories, "tasks" => $allTasks, "content" => $content, "title" => $siteName]));

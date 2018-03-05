@@ -10,14 +10,14 @@ function countTasks ($listTasks, $idTask) {
 }
 
 function renderTemplate ($template, $data) {
+    $content = "";
     if (file_exists($template)) {
         ob_start();
         extract($data);
         require_once($template);
-        return ob_get_clean();  
-    } else {
-        return "";
+        $content = ob_get_clean();  
     }
+    return $content;
 }
 
 function countDays ($currentDate, $nextDate) {

@@ -23,6 +23,7 @@ $categories = [];
 $tasks = [];
 
 $showCompleted = 1;
+$projectId = "";
 
 session_start();
 
