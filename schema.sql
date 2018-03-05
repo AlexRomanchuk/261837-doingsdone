@@ -1,4 +1,4 @@
-CREATE IF NOT EXISTS DATABASE doingsdone;
+CREATE DATABASE IF NOT EXISTSdoingsdone;
 
 USE doingsdone;
 
