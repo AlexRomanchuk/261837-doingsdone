@@ -9,8 +9,9 @@
     if (!filter_var($guest["email"], FILTER_VALIDATE_EMAIL)) {
         $loginErrors["email"] += ["incorrect_email" => "Введен некорректный e-mail"];
     } else {
-        $query = "SELECT * FROM users WHERE email = '" . $guest["email"]  . "'";
-        $result = mysqli_query($dbc, $query);
+        $email = mysqli_real_escape_string($dbc, $guest["email"]);
+        $checkQuery = "SELECT * FROM users WHERE email = '$email'";
+        $result = mysqli_query($dbc, $checkQuery);
         if (mysqli_num_rows($result) === 0) {
             $loginErrors["email"] += ["unknown_user" => "Такого пользователя не существует"];
         } else {
