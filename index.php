@@ -42,4 +42,4 @@ if (isset($_SESSION["user"])) {
     $content = renderTemplate("templates/guest.php", []);
 }
 
-print(renderTemplate("templates/layout.php", ["className" => $className, "content" => $content, "title" => $siteName]));
+print(renderTemplate("templates/layout.php", ["className" => $className, "content" => $content, "title" => $siteName, "categories" => $categories]));

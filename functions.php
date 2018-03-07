@@ -72,3 +72,14 @@ function selectTasksOnFilter($db, $sql) {
     $tasks = createArrayTasks($result);
     return $tasks;
 }
+/**
+* Проверка куки с существованием projectId, если куки есть, то формирует запрос на выборку по категории
+* @param $query SQL-запрос
+* @return Запрос на выборку по проекту
+*/
+function checkCookiesId($query) {
+    if (isset($_COOKIE["projectId"])) {
+        $query = $query . " AND project_id = '" . $_COOKIE["projectId"] . "'";  
+    }
+    return $query;
+}

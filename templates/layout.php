@@ -21,8 +21,8 @@
 
             <div class="main-header__side">
                 <?php if (isset($_SESSION["user"])): ?>
-                    <a class="main-header__side-item button button--plus" href="index.php?add">Добавить задачу</a>
-
+                  <a class="main-header__side-item button button--plus" href="index.php?add">Добавить задачу</a>
+                  
                     <div class="main-header__side-item user-menu">
                         <div class="user-menu__image">
                             <img src="img/user-pic.jpg" width="40" height="40" alt="Пользователь">
@@ -47,13 +47,21 @@
 
                 <nav class="main-navigation">
                     <ul class="main-navigation__list">
+                        <li class="main-navigation__list-item 
+                            <?php if (isset($_GET["all_projects"])): ?>
+                              main-navigation__list-item--active
+                            <?php endif; ?>">
+                            <a class="main-navigation__list-item-link" href="index.php?all_projects">Все</a>
+                            <span class="main-navigation__list-item-count"><?=count($tasks); ?></span>
+                        </li>
                         <?php foreach ($categories as $id => $category): ?>
                           <?php if ($category === "Входящие"): ?>
                             <li class="main-navigation__list-item 
-                              <?php if (isset($_GET["project_id"]) && $_GET["project_id"] === "$id" || isset($_GET["all"]) && $projectId === "$id"): ?>
+                              <?php if (isset($_GET["project_id"]) && $_GET["project_id"] === "$id" || isset($_GET["all"]) && $projectId === "$id" 
+                              || isset($_GET["on_tomorrow"]) && $projectId === "$id" || isset($_GET["on_day"]) && $projectId === "$id" || isset($_GET["not_done"]) && $projectId === "$id"): ?>
                                 main-navigation__list-item--active
                               <?php endif; ?>">
-                              <a class="main-navigation__list-item-link" href="index.php?project_id=<?=$id; ?>"><?=$category; ?></a>
+                              <a class="main-navigation__list-item-link" href="index.php?project_id=<?=$id; ?>"><?=htmlspecialchars($category); ?></a>
                               <span class="main-navigation__list-item-count"><?=countTasks ($tasks, $id); ?></span>
                             </li>
                           <?php endif; ?>
@@ -61,7 +69,8 @@
                         <?php foreach ($categories as $id => $category): ?>
                           <?php if ($category !== "Входящие"): ?>
                             <li class="main-navigation__list-item 
-                              <?php if (isset($_GET["project_id"]) && $_GET["project_id"] === "$id" || isset($_GET["all"]) && $projectId === "$id"): ?>
+                              <?php if (isset($_GET["project_id"]) && $_GET["project_id"] === "$id" || isset($_GET["all"]) && $projectId === "$id"
+                              || isset($_GET["on_tomorrow"]) && $projectId === "$id" || isset($_GET["on_day"]) && $projectId === "$id" || isset($_GET["not_done"])  && $projectId === "$id"): ?>
                                 main-navigation__list-item--active
                               <?php endif; ?>">
                               <a class="main-navigation__list-item-link" href="index.php?project_id=<?=$id; ?>"><?=htmlspecialchars($category); ?></a>

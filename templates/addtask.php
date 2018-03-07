@@ -25,13 +25,20 @@ $preview = $_POST["preview"] ?? "";
         <?php endif; ?>
       <select class="form__input form__input--select
         <?=isset($errors["project"]) ? "form__input--error" : ""; ?>" name="project" id="project">
-        <option value="Входящие" selected>Входящие</option>
+        <?php foreach($categories as $category): ?>
+          <?php if ($category === "Входящие"): ?>
+            <option value="<?=$category; ?>" <?php if ($project === $category): ?>
+                selected
+            <?php endif; ?>>
+            <?=htmlspecialchars($category); ?></option>
+          <?php endif; ?>
+        <?php endforeach; ?>
         <?php foreach($categories as $category): ?>
           <?php if ($category !== "Входящие"): ?>
             <option value="<?=$category; ?>" <?php if ($project === $category): ?>
                 selected
             <?php endif; ?>>
-            <?=$category; ?></option>
+            <?=htmlspecialchars($category); ?></option>
           <?php endif; ?>
         <?php endforeach; ?>
       </select>

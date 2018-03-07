@@ -27,16 +27,24 @@
         $email = mysqli_real_escape_string($dbc, $newUser["email"]);
         $name = mysqli_real_escape_string($dbc, $newUser["name"]);
         $contacts = mysqli_real_escape_string($dbc, $newUser["contacts"]);
-        $query = "INSERT INTO users SET 
+        // Регистрируем пользователя и добавляем ему проект "Входящие" как первый проект, 
+        // Иначе он не сможет сразу добавить задачи (ему потребуется добавить проект), 
+        // так как в поле "Проект" окна "Добавить задачу" не будет никаких проектов.
+        mysqli_query($dbc, "START TRANSACTION");
+        $registr = mysqli_query($dbc, "INSERT INTO users SET
             `email` = '$email',
             `nick` = '$name',
             `password` = '$password',
             `date_registr` = NOW(),
-            `contacts` = '$contacts'";
-        $result = mysqli_query($dbc, $query);
-        if (!$result) {
-            print("Произошла ошибка при регистрации пользователя: " . mysqli_error($dbc));
+            `contacts` = '$contacts'");
+        $addProject = mysqli_query($dbc, "INSERT INTO projects SET 
+            `project_name` = 'Входящие',
+            `author_id` = (SELECT id FROM users WHERE email = '$email')");
+        if ($registr && $addProject) {
+            mysqli_query($dbc, "COMMIT");
+            header("Location: /?login");
         } else {
-            header("Location: /");
+            mysqli_query($dbc, "ROLLBACK");
+            $content = "Произошла ошибка при регистрации пользователя";
         }
     }

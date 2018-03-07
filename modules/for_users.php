@@ -22,11 +22,10 @@
     $completed = (isset($_COOKIE["showcompl"])) ? $_COOKIE["showcompl"] : "0";
     $projectId = (isset($_COOKIE["projectId"])) ? $_COOKIE["projectId"] : "";
     
-    // Выбор проектов пользователя, "Входящие" - общая для всех
+    // проект "Входящие" отобразится в меню первым после пункта "Все" по алгоритму в шаблоне Layout
     $query = "SELECT id, project_name 
         FROM projects 
-        WHERE author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"] . "')
-        OR project_name = 'Входящие'";
+        WHERE author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"] . "')";
     $result = mysqli_query($dbc, $query);
     while ($row = mysqli_fetch_array($result)) {
         $categories += [$row["id"] => $row["project_name"]];
@@ -35,27 +34,32 @@
     $queryTasks = "SELECT id, name, project_id, date_done, completed, image
         FROM tasks
         WHERE author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"]  . "')";
-    
-    // общее кол-во задач у пользователя (для меню проектов)
+        
     $allTasks = createArrayTasks(mysqli_query($dbc, $queryTasks));
     
     if ($completed === "0") {
         $queryTasks = $queryTasks . " AND completed = 0";
     }
+    
+    // общее кол-во актуальных задач у пользователя (для меню проектов)
+    $actualTasks = $queryTasks . " AND completed = 0";
+    $allTasks = createArrayTasks(mysqli_query($dbc, $actualTasks));
+
     // выборка и сборка запроса
     if (isset($_GET["all"])) {
-        if (isset($_COOKIE["projectId"])) {
-            $queryTasks = $queryTasks . " AND project_id = '" . $_COOKIE["projectId"] ."'";
-        }
+        $queryTasks = checkCookiesId($queryTasks);
         $tasks = selectTasksOnFilter($dbc, $queryTasks);
         $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
     } elseif (isset($_GET["on_day"])) {
+        $queryTasks = checkCookiesId($queryTasks);
         $tasks = selectTasksOnFilter($dbc, $queryTasks . " AND date_done = '$currentDate'");
         $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
     } elseif (isset($_GET["on_tomorrow"])) {
+        $queryTasks = checkCookiesId($queryTasks);
         $tasks = selectTasksOnFilter($dbc, $queryTasks . " AND date_done = '" . date("Y-m-d", strtotime("+1 day")) . "'");
         $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
     } elseif (isset($_GET["not_done"])) {
+        $queryTasks = checkCookiesId($queryTasks);
         $tasks = selectTasksOnFilter($dbc, $queryTasks . " AND date_done < '$currentDate'");
         $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
     } elseif (isset($_GET["task_id"])) {
@@ -82,8 +86,7 @@
         } else {
             $queryTasks = $queryTasks . " AND project_id = '$categoryId'";
         }
-        $queryTasks = $queryTasks . " AND project_id = '$categoryId'
-            AND author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"]  . "')";
+        $queryTasks = $queryTasks . " AND author_id = (SELECT id FROM users WHERE email = '" . $_SESSION["user"]["email"]  . "')";
         $tasks = selectTasksOnFilter($dbc, $queryTasks);
         $content = renderTemplate("templates/index.php", ["completed" => $completed, "date" => $currentDate, "tasks" => $tasks]);
     } elseif (isset($_GET["add"])) {
